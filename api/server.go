@@ -33,6 +33,8 @@ func (s *Server) Start() {
 	r := mux.NewRouter()
 	r.Use(setContentTypeHeader)
 	r.HandleFunc("/.well-known/bsvalias", loggingMiddleware(s.ServiceDiscoveryHandler)).Methods("GET")
+	r.HandleFunc("/api/v1/bsvalias/id/:paymail", loggingMiddleware(s.IdentityHandler)).Methods("GET")
+	r.HandleFunc("/api/v1/bsvalias/address/:paymail", loggingMiddleware(s.PaymentDestinationHandler)).Methods("GET")
 
 	srv := &http.Server{
 		Handler:      r,
@@ -51,6 +53,7 @@ func (s *Server) ServiceDiscoveryHandler(w http.ResponseWriter, r *http.Request)
 		Capabilities: map[string]interface{}{
 			"pki":                s.BaseURL + "/api/v1/bsvalias/id/{alias}@{domain.tld}",
 			"paymentDestination": s.BaseURL + "/api/v1/bsvalias/address/{alias}@{domain.tld}",
+			// TODO: add capabilities
 		},
 	})
 
@@ -58,6 +61,16 @@ func (s *Server) ServiceDiscoveryHandler(w http.ResponseWriter, r *http.Request)
 		logrus.Warn(err)
 	}
 	io.WriteString(w, string(j))
+}
+
+// IdentityHandler returns identity for a given paymail {alias}@{domain}.{tld}
+func (s *Server) IdentityHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
+
+// PaymentDestinationHandler returns payment destination for a given paymail {alias}@{domain}.{tld}
+func (s *Server) PaymentDestinationHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO
 }
 
 func setContentTypeHeader(next http.Handler) http.Handler {
