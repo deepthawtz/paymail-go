@@ -11,11 +11,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ServiceDiscovery is returned when well known file is requested by a Paymail client
-type ServiceDiscovery struct {
-	Version      string                 `json:"bsvalias"`
-	Capabilities map[string]interface{} `json:"capabilities"`
-}
+// BSVAliasVersion is the version of the specification
+const BSVAliasVersion = "1.0"
 
 // Server is a Paymail server
 type Server struct {
@@ -48,8 +45,8 @@ func (s *Server) Start() {
 
 // ServiceDiscoveryHandler handles request for Paymail server capabilities
 func (s *Server) ServiceDiscoveryHandler(w http.ResponseWriter, r *http.Request) {
-	j, err := json.Marshal(&ServiceDiscovery{
-		Version: "1.0",
+	j, err := json.Marshal(&ServiceDiscoveryResponse{
+		Version: BSVAliasVersion,
 		Capabilities: map[string]interface{}{
 			"pki":                s.BaseURL + "/api/v1/bsvalias/id/{alias}@{domain.tld}",
 			"paymentDestination": s.BaseURL + "/api/v1/bsvalias/address/{alias}@{domain.tld}",
@@ -63,12 +60,24 @@ func (s *Server) ServiceDiscoveryHandler(w http.ResponseWriter, r *http.Request)
 	io.WriteString(w, string(j))
 }
 
-// IdentityHandler returns identity for a given paymail {alias}@{domain}.{tld}
+// IdentityHandler returns identity for a given paymail {alias}@{domain.tld}
 func (s *Server) IdentityHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO
+	paymail := mux.Vars(r)["paymail"]
+	// TODO: do some actual lookup on paymail
+
+	j, err := json.Marshal(&PKIResponse{
+		Version: BSVAliasVersion,
+		Handle:  paymail,
+		PubKey:  "",
+	})
+
+	if err != nil {
+		logrus.Warn(err)
+	}
+	io.WriteString(w, string(j))
 }
 
-// PaymentDestinationHandler returns payment destination for a given paymail {alias}@{domain}.{tld}
+// PaymentDestinationHandler returns payment destination for a given paymail {alias}@{domain.tld}
 func (s *Server) PaymentDestinationHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO
 }
