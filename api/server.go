@@ -33,8 +33,8 @@ func (s *Server) Start() {
 	r := mux.NewRouter()
 	r.Use(setContentTypeHeader)
 	r.HandleFunc("/.well-known/bsvalias", loggingMiddleware(s.ServiceDiscoveryHandler)).Methods("GET")
-	r.HandleFunc("/api/v1/bsvalias/id/:paymail", loggingMiddleware(s.IdentityHandler)).Methods("GET")
-	r.HandleFunc("/api/v1/bsvalias/address/:paymail", loggingMiddleware(s.PaymentDestinationHandler)).Methods("GET")
+	r.HandleFunc("/api/v1/bsvalias/id/{paymail}", loggingMiddleware(s.IdentityHandler)).Methods("GET")
+	r.HandleFunc("/api/v1/bsvalias/address/{paymail}", loggingMiddleware(s.PaymentDestinationHandler)).Methods("GET")
 
 	srv := &http.Server{
 		Handler:      r,
